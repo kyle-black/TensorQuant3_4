@@ -11,12 +11,27 @@ db_config = {
     "dbname": os.getenv('DB_NAME'),
     "user": os.getenv('DB_USER'),
     "password": os.getenv('DB_PASSWORD'),
-    "host": os.getenv('DB_HOST')
+    "host": os.getenv('DB_HOST'),
     "port": 16751,
     
     
     
 }
+
+create_tables =[
+    '''
+    CREATE TABLE IF NOT EXISTS EURUSD_15(
+    date FLOAT PRIMARY KEY,
+    open FLOAT,
+    low FLOAT,
+    high FLOAT,
+    close FLOAT,
+    volume FLOAT
+
+    );
+    '''
+
+]
 
 
 try:
@@ -25,19 +40,19 @@ try:
     print("Connection successful!")
 
     # Create a cursor object
-   # cursor = connection.cursor()
+    cursor = connection.cursor()
 
     # Execute each table creation SQL command
-   # for command in create_tables:
-   #     cursor.execute(command)
-   #     print(f"Executed:\n{command}")
+    for command in create_tables:
+         cursor.execute(command)
+         print(f"Executed:\n{command}")
     
     # Commit the changes
-  #  connection.commit()
-   # print("Tables created successfully.")
+    connection.commit()
+    print("Tables created successfully.")
 
     # Close the cursor and connection
-   # cursor.close()
+    cursor.close()
     connection.close()
     print("Connection closed.")
 except Exception as e:
