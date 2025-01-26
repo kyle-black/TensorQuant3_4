@@ -3,8 +3,8 @@ from psycopg2 import sql
 from dotenv import load_dotenv
 import os
 
-
-load_dotenv()
+dotenv_path = '../../.env'
+load_dotenv(dotenv_path)
 
 # Database connection parameters
 db_config = {
@@ -33,6 +33,12 @@ create_tables =[
 
 ]
 
+tablelist =['aliusd_15','audjpy_15', 'audusd_15','clusd_15', 'eurgbp_15','eurjpy_15', 
+            'gbpjpy_15','gcusd_15','hgusd_15','gcusd_15','hgusd_15',
+            'ngusd_15','nzdjpy_15','pausd_15','plusd_15', 'siusd_15', 
+            'usdcad_15','usdchf_15','usdhkd_15','usdjpy_15']
+
+
 
 try:
     # Establish the connection
@@ -42,13 +48,31 @@ try:
     # Create a cursor object
     cursor = connection.cursor()
 
+
+    for table in tablelist:
+
+        command = f"""CREATE TABLE IF NOT EXISTS {table}(date FLOAT,
+    open FLOAT,
+    low FLOAT,
+    high FLOAT,
+    close FLOAT,
+    volume FLOAT
+
+    );
+    """
+        
+#        command = f"DROP TABLE IF EXISTS {table}"
+       # command =f"ALTER TABLE {table} DROP CONSTRAINT {table}_pkey;"
+        cursor.execute(command)
+
     # Execute each table creation SQL command
-    for command in create_tables:
-         cursor.execute(command)
-         print(f"Executed:\n{command}")
+  #  for command in create_tables:
+  #       cursor.execute(command)
+  #       print(f"Executed:\n{command}")
     
     # Commit the changes
     connection.commit()
+ #   print("Table dropped successfully.")
     print("Tables created successfully.")
 
     # Close the cursor and connection
