@@ -2,12 +2,19 @@ from sqlalchemy import create_engine, Column, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
+from sqlalchemy import URL
+import os
+from dotenv import load_dotenv
 
 # Database URL
+load_dotenv()
+
+DATABASE_ = os.getenv('db_url')
+
 
 
 # Create the engine
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_)
 
 # Base class for models
 Base = declarative_base()

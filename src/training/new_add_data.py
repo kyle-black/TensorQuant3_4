@@ -55,12 +55,9 @@ def bulk_load_json(json_file, table_name):
 json_directory = "../../data/forex/"
 
 # Table name in the database
-json_name ="../../data/forex/EURUSD_15.json"
-
-bulk_load_json(json_name,'eurusd_15')
-
+#table_name = "EURUSD_15"
 '''
- Iterate through JSON files in the directory
+# Iterate through JSON files in the directory
 for file_name in os.listdir(json_directory):
     print(file_name)
     if file_name.startswith(table_name) and file_name.endswith(".json"):
@@ -68,3 +65,17 @@ for file_name in os.listdir(json_directory):
         print(f'Bulk loading: {file_name}')
         bulk_load_json(json_file_path, table_name)
 '''
+
+
+tablelist =['aliusd_15','audjpy_15', 'audusd_15','clusd_15', 'eurgbp_15','eurjpy_15', 
+            'gbpjpy_15','gcusd_15','hgusd_15','gcusd_15','hgusd_15',
+            'ngusd_15','nzdjpy_15','pausd_15','plusd_15', 'siusd_15', 
+            'usdcad_15','usdchf_15','usdhkd_15','usdjpy_15']
+
+
+for filename in tablelist:
+    print('importing:',filename)
+    
+    filejson= f'{filename.upper()}.json'
+    json_file_path = os.path.join(json_directory, filejson)
+    bulk_load_json(json_file_path,filename)

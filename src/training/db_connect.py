@@ -33,12 +33,12 @@ create_tables =[
 
 ]
 
-tablelist =['aliusd_15','audjpy_15', 'audusd_15','clusd_15', 'eurgbp_15','eurjpy_15', 
-            'gbpjpy_15','gcusd_15','hgusd_15','gcusd_15','hgusd_15',
-            'ngusd_15','nzdjpy_15','pausd_15','plusd_15', 'siusd_15', 
-            'usdcad_15','usdchf_15','usdhkd_15','usdjpy_15']
+tablelist =['aliusd_60','audjpy_60', 'audusd_60','clusd_60', 'eurgbp_60','eurjpy_60', 
+            'gbpjpy_60','gcusd_60','hgusd_60','gcusd_60','hgusd_60',
+            'ngusd_60','nzdjpy_60','pausd_60','plusd_60', 'siusd_60', 
+            'usdcad_60','usdchf_60','usdhkd_60','usdjpy_60']
 
-
+#tablelist= ['eurusd_15']
 
 try:
     # Establish the connection
