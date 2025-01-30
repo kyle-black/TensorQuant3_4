@@ -3,6 +3,7 @@ from psycopg2 import sql
 from dotenv import load_dotenv
 import os
 
+# Load environment variables
 dotenv_path = '../../.env'
 load_dotenv(dotenv_path)
 
@@ -12,33 +13,15 @@ db_config = {
     "user": os.getenv('DB_USER'),
     "password": os.getenv('DB_PASSWORD'),
     "host": os.getenv('DB_HOST'),
-    "port": 16751,
-    
-    
-    
+    "port": os.getenv('DB_PORT', 5432),  # Default to 5432 if not in .env
 }
 
-create_tables =[
-    '''
-    CREATE TABLE IF NOT EXISTS EURUSD_15(
-    date FLOAT PRIMARY KEY,
-    open FLOAT,
-    low FLOAT,
-    high FLOAT,
-    close FLOAT,
-    volume FLOAT
-
-    );
-    '''
-
+# Table creation SQL commands
+tablelist = [
+    "aliusd_15", "audjpy_15", "audusd_15", "eurusd_15","clusd_15", "eurgbp_15", "eurjpy_15", 
+    "gbpjpy_15", "gcusd_15", "hgusd_15", "ngusd_15", "nzdjpy_15", "pausd_15", 
+    "plusd_15", "siusd_15", "usdcad_15", "usdchf_15", "usdhkd_15", "usdjpy_15"
 ]
-
-tablelist =['aliusd_60','audjpy_60', 'audusd_60','clusd_60', 'eurgbp_60','eurjpy_60', 
-            'gbpjpy_60','gcusd_60','hgusd_60','gcusd_60','hgusd_60',
-            'ngusd_60','nzdjpy_60','pausd_60','plusd_60', 'siusd_60', 
-            'usdcad_60','usdchf_60','usdhkd_60','usdjpy_60']
-
-#tablelist= ['eurusd_15']
 
 try:
     # Establish the connection
@@ -48,36 +31,53 @@ try:
     # Create a cursor object
     cursor = connection.cursor()
 
-
     for table in tablelist:
-
-        command = f"""CREATE TABLE IF NOT EXISTS {table}(date FLOAT,
-    open FLOAT,
-    low FLOAT,
-    high FLOAT,
-    close FLOAT,
-    volume FLOAT
-
-    );
-    """
+        # Get the name of the primary key constraint (if it exists)
+        cursor.execute(f"""
+            SELECT constraint_name
+            FROM information_schema.table_constraints
+            WHERE table_name = %s AND constraint_type = 'PRIMARY KEY';
+        """, (table,))
         
-#        command = f"DROP TABLE IF EXISTS {table}"
-       # command =f"ALTER TABLE {table} DROP CONSTRAINT {table}_pkey;"
-        cursor.execute(command)
+        pk_constraint = cursor.fetchone()
 
-    # Execute each table creation SQL command
-  #  for command in create_tables:
-  #       cursor.execute(command)
-  #       print(f"Executed:\n{command}")
-    
+        if pk_constraint:
+            # Drop the primary key constraint if it exists
+            drop_pk_command = sql.SQL("""
+                ALTER TABLE {table_name} DROP CONSTRAINT {pk_constraint};
+            """).format(
+                table_name=sql.Identifier(table),
+                pk_constraint=sql.Identifier(pk_constraint[0])
+            )
+            cursor.execute(drop_pk_command)
+            print(f"Primary key removed from table '{table}'.")
+
+        # Now, create the table without the primary key
+        create_table_command = sql.SQL("""
+            CREATE TABLE IF NOT EXISTS {table_name} (
+                date FLOAT,
+                open FLOAT,
+                low FLOAT,
+                high FLOAT,
+                close FLOAT,
+                volume FLOAT
+            );
+        """).format(table_name=sql.Identifier(table))
+        
+        cursor.execute(create_table_command)
+        print(f"Table '{table}' created or verified.")
+
     # Commit the changes
     connection.commit()
- #   print("Table dropped successfully.")
     print("Tables created successfully.")
 
-    # Close the cursor and connection
-    cursor.close()
-    connection.close()
-    print("Connection closed.")
 except Exception as e:
     print("Error:", e)
+
+finally:
+    # Close the cursor and connection
+    if 'cursor' in locals():
+        cursor.close()
+    if 'connection' in locals():
+        connection.close()
+    print("Connection closed.")

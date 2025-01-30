@@ -13,7 +13,7 @@ db_config = {
     "user": os.getenv('DB_USER'),
     "password": os.getenv('DB_PASSWORD'),
     "host": os.getenv('DB_HOST'),
-    "port": 16751,
+    "port": os.getenv('DB_PORT', 5432),  # Default to 5432 if not in .env
 }
 
 def bulk_load_json(json_file, table_name):
@@ -66,11 +66,13 @@ for file_name in os.listdir(json_directory):
         bulk_load_json(json_file_path, table_name)
 '''
 
-
+'''
 tablelist =['aliusd_15','audjpy_15', 'audusd_15','clusd_15', 'eurgbp_15','eurjpy_15', 
             'gbpjpy_15','gcusd_15','hgusd_15','gcusd_15','hgusd_15',
             'ngusd_15','nzdjpy_15','pausd_15','plusd_15', 'siusd_15', 
             'usdcad_15','usdchf_15','usdhkd_15','usdjpy_15']
+'''
+tablelist = ['eurusd_15']
 
 
 for filename in tablelist:
