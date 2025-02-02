@@ -1,66 +1,61 @@
-from sqlalchemy import create_engine, Column, Float
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, text
 import pandas as pd
-from sqlalchemy import URL
 import os
 from dotenv import load_dotenv
 
-# Database URL
+# Load environment variables
 load_dotenv()
 
-DATABASE_ = os.getenv('db_url')
-
-
+# Create the database URL correctly
+DATABASE_URL = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
 
 # Create the engine
-engine = create_engine(DATABASE_)
+engine = create_engine(DATABASE_URL)
 
-# Base class for models
-Base = declarative_base()
 
-# Define a model
-class EURUSD(Base):
-    __tablename__ = 'eurusd_15'
-    date = Column(Float, primary_key=True)
-    open = Column(Float)
-    high = Column(Float)
-    low = Column(Float)
-    close = Column(Float)
-    volume = Column(Float)
+def join_tables_with_raw_sql():
+    # Write your raw SQL query
+    sql_query = text("""
+    SELECT 
+        t1.date AS date,
+        t1.open AS eurusd_open,
+        t1.high AS eurusd_high,
+        t1.low AS eurusd_low,
+        t1.close AS eurusd_close,
+        t1.volume AS eurusd_volume,
+        t2.open AS eurjpy_open,
+        t2.high AS eurjpy_high,
+        t2.low AS eurjpy_low,
+        t2.close AS eurjpy_close,
+        t2.volume AS eurjpy_volume,
+        t3.open AS eurgbp_open,
+        t3.high AS eurgbp_high,
+        t3.low AS eurgbp_low,
+        t3.close AS eurgbp_close,
+        t3.volume AS eurgbp_volume
+    FROM eurusd_15 t1
+    INNER JOIN eurjpy_15 t2 ON t1.date = t2.date
+    INNER JOIN eurgbp_15 t3 ON t1.date = t3.date
+    """)
 
-def run_query():
-    # Create a session
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    # Execute the query
+    with engine.connect() as connection:
+        result = connection.execute(sql_query)
+        
+        # Convert the results to a DataFrame
+        df = pd.DataFrame(result.fetchall(), columns=result.keys())
 
-    # Query the database
-    results = (session.query(EURUSD).all())
+    # Format the date
+    df['formatted_time'] = pd.to_datetime(df['date'], unit='s')
 
-    # Convert results to a DataFrame
-    data = [
-        {
-            "DATE": bar.date,
-            "OPEN": bar.open,
-            "HIGH": bar.high,
-            "LOW": bar.low,
-            "CLOSE": bar.close,
-            "VOLUME": bar.volume
-        }
-        for bar in results
-    ]
-
-    df = pd.DataFrame(data)
-  #  df['formatted_time'] = df['DATE']/10000
-    df['formatted_time'] = pd.to_datetime(df['DATE'], unit='ms')
-    
     # Display the DataFrame
     print(df)
     return df
 
 
-
-
-
 if __name__ == "__main__":
-    run_query()
+    print("Joining tables using raw SQL...")
+    df = join_tables_with_raw_sql()
+    print(df)
+    # Save the result to a CSV file
+    #df.to_csv("joined_data.csv", index=False)

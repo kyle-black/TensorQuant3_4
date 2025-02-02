@@ -68,4 +68,3 @@ if __name__ == "__main__":
     threshold_ = 5000
 
     print((bar_creation(df, threshold_)))
-
