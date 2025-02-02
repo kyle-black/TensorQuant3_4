@@ -13,7 +13,7 @@ DATABASE_URL = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@
 engine = create_engine(DATABASE_URL)
 
 
-def join_tables_with_raw_sql():
+def join_tables():
     # Write your raw SQL query
     sql_query = text("""
     SELECT 
@@ -55,7 +55,7 @@ def join_tables_with_raw_sql():
 
 if __name__ == "__main__":
     print("Joining tables using raw SQL...")
-    df = join_tables_with_raw_sql()
+    df = join_tables()
     print(df)
     # Save the result to a CSV file
     #df.to_csv("joined_data.csv", index=False)
